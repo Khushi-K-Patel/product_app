@@ -103,12 +103,12 @@ export async function PUT(request: NextRequest) {
     }
 
     // Check if any changes are being made
-    const isNameUnchanged = !newName;
-    const isCountUnchanged = count == product.count;
+    // const isNameUnchanged = !newName;
+    // const isCountUnchanged = count == product.count;
 
-    if (isNameUnchanged && isCountUnchanged) {
-        return NextResponse.json({ error: 'At least one change is required' }, { status: 400 });
-    }
+    // if (isNameUnchanged && isCountUnchanged) {
+    //     return NextResponse.json({ error: 'At least one change is required' }, { status: 400 });
+    // }
 
     // Update fields if provided
     if (newName) product.name = newName;

@@ -30,7 +30,7 @@ export const columns: ColumnDef<WalletData>[] = [
         }
     },
     {
-        header: "Count",
+        header: "Quantity",
         accessorKey: "productCount",
         cell: ({ row }) => {
             return <div>{row.getValue("productCount")}</div>;

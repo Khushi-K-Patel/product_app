@@ -17,12 +17,53 @@ interface EditProductProps {
 export function EditProduct({ productName, productCount, isOpen, onOpenChange, onProductUpdated }: EditProductProps) {
     const [newProductName, setNewProductName] = useState("");
     const [newProductCount, setNewProductCount] = useState(productCount);
+    const [addQuantity, setAddQuantity] = useState("");
+    const [reduceQuantity, setReduceQuantity] = useState("");
+    const [isNewProductCountValid, setIsNewProductCountValid] = useState(true);
+    const [isAddQuantityValid, setIsAddQuantityValid] = useState(true);
+    const [isReduceQuantityValid, setIsReduceQuantityValid] = useState(true);
+
+    const validateNumber = (value: string): boolean => {
+        const regex = /^(\d+(\.\d*)?|\.\d+)$/; // This regex allows numbers like 123, 123.456, .456
+        return regex.test(value) || value === ""; // Allow empty value for clearing the input
+    };
+
+    const handleInputChange = (value: string, setter: React.Dispatch<React.SetStateAction<string>>, validitySetter: React.Dispatch<React.SetStateAction<boolean>>) => {
+        // Trim the value
+        value = value.trim();
+
+        // If the value is empty, set it to "0"
+        if (value === "") {
+            setter("");
+            validitySetter(true);
+            return;
+        }
+
+        // Validate if the value is a valid number
+        if (validateNumber(value)) {
+            // Check if the number has more than 18 decimal places
+            const parts = value.split(".");
+            if (parts.length > 1 && parts[1].length > 18) {
+                toast.error("Number cannot have more than 18 decimal places.");
+                validitySetter(false);
+                return;
+            }
+
+            setter(value);
+            validitySetter(true);
+        } else {
+            toast.error("Please enter a valid non-negative number.");
+            validitySetter(false);
+        }
+    };
 
     const handleEditProduct = async () => {
+
+        const updatedProductQuality = parseFloat(newProductCount) + parseFloat(addQuantity || "0") - parseFloat(reduceQuantity || "0");
         const payload = {
             name: productName,
             newName: newProductName || undefined,
-            count: newProductCount || undefined,
+            count: updatedProductQuality,
         };
 
         try {
@@ -75,17 +116,43 @@ export function EditProduct({ productName, productCount, isOpen, onOpenChange, o
                     </div>
                     {/* Product Count */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700">Product Count</label>
+                        <label className="block text-sm font-medium text-gray-700">Total Product Quantity</label>
                         <Input
-                            type="number"
+                            type="text"
                             value={newProductCount}
-                            onChange={(e) => setNewProductCount(e.target.value)}
+                            onChange={(e) => handleInputChange(e.target.value, setNewProductCount, setIsNewProductCountValid)}
+                            className="w-full p-2 border border-gray-300 rounded-md"
+                        />
+                    </div>
+
+                    {/* Add Quantity */}
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Add Quantity</label>
+                        <Input
+                            type="text"
+                            value={addQuantity}
+                            onChange={(e) => handleInputChange(e.target.value, setAddQuantity, setIsAddQuantityValid)}
+                            className="w-full p-2 border border-gray-300 rounded-md"
+                        />
+                    </div>
+                    {/*  Reduce Quantity */}
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Reduce Quantity</label>
+                        <Input
+                            type="text"
+                            value={reduceQuantity}
+                            disabled={Number(productCount) <= 0}
+                            onChange={(e) => handleInputChange(e.target.value, setReduceQuantity, setIsReduceQuantityValid)}
                             className="w-full p-2 border border-gray-300 rounded-md"
                         />
                     </div>
                 </div>
                 <DialogFooter>
-                    <Button variant="default" onClick={handleEditProduct}>
+                    <Button
+                        variant="default"
+                        disabled={!isNewProductCountValid || !isAddQuantityValid || !isReduceQuantityValid}
+                        onClick={handleEditProduct}
+                    >
                         Save Changes
                     </Button>
                 </DialogFooter>
