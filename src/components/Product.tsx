@@ -60,7 +60,7 @@ export function Productpage() {
                 const productData = data.products.map((item: productItemProps, index: number) => ({
                     index: (currentPage - 1) * 10 + index + 1,
                     productName: item.name,
-                    productCount: Number(item.count)?.toFixed(4),
+                    productCount: item.count,
                     editProduct: `${item.name}-${item.count}`,
                     deleteProduct: item.name
                 }));
